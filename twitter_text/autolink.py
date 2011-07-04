@@ -63,15 +63,7 @@ class Autolink(object):
         suppress_lists::    disable auto-linking to lists
         suppress_no_follow::   Do not add rel="nofollow" to auto-linked items
         """
-        defaults = {
-            'url_class': self.DEFAULT_URL_CLASS,
-            'list_class': self.DEFAULT_LIST_CLASS,
-            'username_class': self.DEFAULT_USERNAME_CLASS,
-            'username_url_base': 'http://twitter.com/',
-            'list_url_base': 'http://twitter.com/',
-        }
-        kwargs.update(defaults)
-        extra_html = kwargs.get('suppress_no_follow', False) or self.HTML_ATTR_NO_FOLLOW
+        extra_html = '' if kwargs.get('suppress_no_follow', False) else self.HTML_ATTR_NO_FOLLOW
     
         matches = REGEXEN['auto_link_usernames_or_lists'].finditer(self.text)
         for match in matches:
@@ -79,25 +71,39 @@ class Autolink(object):
             if match.group(4) is not None and not kwargs.get('suppress_lists', False):
                 # this link is a list
                 _list = u'%s%s' % (match.group(3), match.group(4))
-                _link = u'%s%s<a class="%s" href="%s%s"%s>%s</a>' % ( match.group(1), match.group(2), ' '.join( [ kwargs.get('url_class', ''), kwargs.get('list_class', '') ] ), kwargs.get('list_url_base'), _list.lower(), extra_html, _list )
-                del(_list)
+                _link = u'%s%s<a class="%s" href="%s%s"%s>%s</a>' % (
+                    match.group(1),
+                    match.group(2),
+                    ' '.join([
+                        kwargs.get('url_class', self.DEFAULT_URL_CLASS),
+                        kwargs.get('list_class', self.DEFAULT_LIST_CLASS)
+                    ]),
+                    kwargs.get('list_url_base', 'http://twitter.com/'),
+                    _list.lower(),
+                    extra_html,
+                    _list
+                )
             else:
                 # this is a screen name
                 _username = match.group(3)
-                _link = u'%s<a class="%s" href="%s%s"%s>%s%s</a>' % ( match.group(1), ' '.join( [ kwargs.get('url_class'), kwargs.get('username_class', '') ] ), kwargs.get('username_url_base', ''), _username, extra_html, match.group(2), _username )
-                del(_username)
+                _link = u'%s<a class="%s" href="%s%s"%s>%s%s</a>' % (
+                    match.group(1),
+                    ' '.join([
+                        kwargs.get('url_class', self.DEFAULT_URL_CLASS),
+                        kwargs.get('username_class', self.DEFAULT_USERNAME_CLASS)
+                    ]),
+                    kwargs.get('username_url_base', 'http://twitter.com/'),
+                    _username,
+                    extra_html,
+                    match.group(2),
+                    _username
+                )
             self.text = self.text.replace(match.group(0), _link)
-            del(_link)
 
         if self.parent and hasattr(self.parent, 'text'):
             self.parent.text = self.text
         if self.parent and hasattr(self.parent, 'has_been_linked'):
             self.parent.has_been_linked = True
-
-        del(matches)
-        del(extra_html)
-        del(kwargs)
-        del(defaults)
         
         return self.text
     
@@ -111,28 +117,27 @@ class Autolink(object):
         hashtag_url_base::      the value for href attribute. The hashtag text (minus the #) will be appended at the end of this.
         suppress_no_follow::   Do not add rel="nofollow" to auto-linked items
         """
-        defaults = {
-            'url_class': self.DEFAULT_URL_CLASS,
-            'hashtag_class': self.DEFAULT_HASHTAG_CLASS,
-            'hashtag_url_base': 'http://twitter.com/search?q=%23',
-        }
-        kwargs.update(defaults)
-        extra_html = kwargs.get('suppress_no_follow', False) or self.HTML_ATTR_NO_FOLLOW
-    
+        extra_html = '' if kwargs.get('suppress_no_follow', False) else self.HTML_ATTR_NO_FOLLOW
+
         matches = REGEXEN['auto_link_hashtags'].finditer(self.text)
         for match in matches:
-            _link = u'%s<a href="%s%s" title="#%s" class="%s"%s>%s%s</a>' % ( match.group(1), kwargs.get('hashtag_url_base'), match.group(3), match.group(3), ' '.join( [ kwargs.get('url_class', ''), kwargs.get('hashtag_class', '') ] ), extra_html, match.group(2), match.group(3) )
+            _link = u'%s<a href="%s%s" title="#%s" class="%s"%s>%s%s</a>' % (
+                match.group(1),
+                kwargs.get('hashtag_url_base', 'http://twitter.com/search?q=%23'),
+                match.group(3),
+                match.group(3),
+                ' '.join([kwargs.get('url_class', self.DEFAULT_URL_CLASS),
+                          kwargs.get('hashtag_class', self.DEFAULT_HASHTAG_CLASS)]),
+                extra_html,
+                match.group(2),
+                match.group(3)
+            )
             self.text = self.text.replace(match.group(0), _link)
 
         if self.parent and hasattr(self.parent, 'text'):
             self.parent.text = self.text
         if self.parent and hasattr(self.parent, 'has_been_linked'):
             self.parent.has_been_linked = True
-
-        del(matches)
-        del(extra_html)
-        del(kwargs)
-        del(defaults)
         
         return self.text
     

@@ -13,6 +13,7 @@ def autolink_tests(tests, passed, failed):
     correct_auto_link_with_hit_highlight = u'<a class="tweet-url username" href="http://twitter.com/foo" rel="nofollow">@foo</a> said the <em class="search-hit">funniest</em> thing to <a class="tweet-url username" href="http://twitter.com/monkeybat" rel="nofollow">＠monkeybat</a> and <a class="tweet-url username" href="http://twitter.com/bar" rel="nofollow">@bar</a> <a href="http://dryan.net/xxxxx?param=true#hash" rel="nofollow">http://dryan.net/xxxxx?param=t…</a> <a href="http://twitter.com/search?q=%23comedy" title="#comedy" class="tweet-url hashtag" rel="nofollow">#comedy</a> <a href="http://twitter.com/search?q=%23url" title="#url" class="tweet-url hashtag" rel="nofollow">#url</a>'
     correct_auto_link_usernames_or_lists = u'<a class="tweet-url username" href="http://twitter.com/foo" rel="nofollow">@foo</a> said the funniest thing to <a class="tweet-url username" href="http://twitter.com/monkeybat" rel="nofollow">＠monkeybat</a> and <a class="tweet-url username" href="http://twitter.com/bar" rel="nofollow">@bar</a> http://dryan.net/xxxxx?param=true#hash #comedy #url'
     correct_auto_link_hashtags = u'@foo said the funniest thing to ＠monkeybat and @bar http://dryan.net/xxxxx?param=true#hash <a href="http://twitter.com/search?q=%23comedy" title="#comedy" class="tweet-url hashtag" rel="nofollow">#comedy</a> <a href="http://twitter.com/search?q=%23url" title="#url" class="tweet-url hashtag" rel="nofollow">#url</a>'
+    correct_auto_link_custom = u'@foo said the funniest thing to ＠monkeybat and @bar http://dryan.net/xxxxx?param=true#hash <a href="/search/?tag=comedy" title="#comedy" class="url-class hashtag-class">#comedy</a> <a href="/search/?tag=url" title="#url" class="url-class hashtag-class">#url</a>'
     correct_auto_link_urls_custom = u'@foo said the funniest thing to ＠monkeybat and @bar <a href="http://dryan.net/xxxxx?param=true#hash" rel="nofollow">http://dryan.net/xxxxx?param=t…</a> #comedy #url'
     correct_auto_link_urls_custom_with_kwargs = u'@foo said the funniest thing to ＠monkeybat and @bar <a href="http://dryan.net/xxxxx?param=true#hash" class="boosh" rel="external nofollow" title="a link">http://dryan.net/xxxxx?param=t…</a> #comedy #url'
 
@@ -37,6 +38,23 @@ def autolink_tests(tests, passed, failed):
     else:
         print u'\033[91m  Stand alone auto_link failed:\033[0m'
         print u'    Expected: %s' % correct_auto_link
+        print u'    Returned: %s' % test_autolink
+        failed +=1
+    tests +=1
+
+    autolink = twitter_text.Autolink(text)
+    test_autolink = autolink.auto_link_hashtags(
+        url_class='url-class',
+        hashtag_class='hashtag-class',
+        hashtag_url_base='/search/?tag=',
+        suppress_no_follow=True
+    )
+    if test_autolink == correct_auto_link_custom:
+        print u'\033[92m  Custom auto_link_hashtags passed\033[0m'
+        passed += 1
+    else:
+        print u'\033[91m  Custom auto_link_hashtags failed:\033[0m'
+        print u'    Expected: %s' % correct_auto_link_custom
         print u'    Returned: %s' % test_autolink
         failed +=1
     tests +=1

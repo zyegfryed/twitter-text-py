@@ -16,7 +16,7 @@ for space in [9, 10, 11, 12, 13, 32, 133, 160, 5760, 6158, 8192, 8193, 8194, 819
     UNICODE_SPACES.append(hex(space))
 REGEXEN['spaces'] = re.compile(ur'|'.join(UNICODE_SPACES))
 
-REGEXEN['at_signs'] = re.compile(ur'[%s]' % ur'|'.join(list(u'@＠')))
+REGEXEN['at_signs'] = re.compile(ur'[@\uff20]')
 REGEXEN['extract_mentions'] = re.compile(ur'(^|[^a-zA-Z0-9_])(%s)([a-zA-Z0-9_]{1,20})(?=(.|$))' % REGEXEN['at_signs'].pattern)
 REGEXEN['extract_reply'] = re.compile(ur'^(?:[%s])*%s([a-zA-Z0-9_]{1,20})' % (REGEXEN['spaces'].pattern, REGEXEN['at_signs'].pattern))
 
@@ -29,8 +29,8 @@ for accent in [192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 
 REGEXEN['latin_accents'] = re.compile(ur''.join(LATIN_ACCENTS))
 
 # Characters considered valid in a hashtag but not at the beginning, where only a-z and 0-9 are valid.
-HASHTAG_CHARACTERS = re.compile(ur'[a-z0-9_%s]' % REGEXEN['latin_accents'].pattern, re.IGNORECASE) 
-REGEXEN['auto_link_hashtags'] = re.compile(ur'(^|[^0-9A-Z&\/]+)(#|＃)([0-9A-Z_]*[A-Z_]+%s*)' % HASHTAG_CHARACTERS.pattern, re.IGNORECASE)
+HASHTAG_CHARACTERS = re.compile(ur'[a-z0-9_%s]' % REGEXEN['latin_accents'].pattern, re.IGNORECASE)
+REGEXEN['auto_link_hashtags'] = re.compile(ur'(^|[^0-9A-Z&\/]+)(#|\uff03)([0-9A-Z_]*[A-Z_]+[%s]*)' % HASHTAG_CHARACTERS.pattern, re.IGNORECASE)
 REGEXEN['auto_link_usernames_or_lists'] = re.compile(ur'([^a-zA-Z0-9_]|^)([@＠]+)([a-zA-Z0-9_]{1,20})(\/[a-zA-Z][a-zA-Z0-9\u0080-\u00ff\-]{0,79})?')
 REGEXEN['auto_link_emoticon'] = re.compile(ur'(8\-\#|8\-E|\+\-\(|\`\@|\`O|\&lt;\|:~\(|\}:o\{|:\-\[|\&gt;o\&lt;|X\-\/|\[:-\]\-I\-|\/\/\/\/Ö\\\\\\\\|\(\|:\|\/\)|∑:\*\)|\( \| \))')
 
